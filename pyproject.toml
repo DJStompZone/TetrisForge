@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "tetrisforge"
+version = "0.1.0"
+description = "Multiplayer Tetris"
+authors = ["ForgedCore8 <77468737+forgedcore8@users.noreply.github.com>", "DJ Stomp <85457381+djstompzone@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+pyside6 = "^6.7.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pylance = "^0.11.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

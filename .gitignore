@@ -1,0 +1,12 @@
+#standard python/poetry stuff
+.pytest_cache/
+.cache/
+.venv/
+dist/
+build/
+*.egg-info/
+*.egg/
+
+#IDE stuff
+.idea/
+.vscode/
