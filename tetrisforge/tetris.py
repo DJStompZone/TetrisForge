@@ -490,8 +490,7 @@ class Board(QFrame):
                 print(f"Join code: {join_code}")
             else:
                 self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                decoded = base64.b64decode(self.join_code.encode()).decode()
-                host, port = decoded.split(":")
+                host, port = base64_to_ipv4_port(self.join_code)
                 print(f"Connecting to server at {host}:{port}")
                 try:
                     self.client_socket.connect((host, int(port)))
