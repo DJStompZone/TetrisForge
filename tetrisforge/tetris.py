@@ -6,6 +6,8 @@ import socket
 import subprocess
 import sys
 import threading
+import time
+import struct
 import traceback
 from typing import override
 
@@ -26,6 +28,22 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+def ipv4_port_to_base64(ipv4: str, port: int) -> str:
+    octets = ipv4.split('.')
+    ip_bytes = struct.pack('!BBBB', int(octets[0]), int(octets[1]), int(octets[2]), int(octets[3]))
+    port_bytes = struct.pack('!H', port)
+    combined_bytes = ip_bytes + port_bytes
+    base64_encoded = base64.b64encode(combined_bytes).decode('utf-8')
+    return base64_encoded
+
+def base64_to_ipv4_port(base64_encoded: str) -> (str, int):
+    combined_bytes = base64.b64decode(base64_encoded)
+    ip_bytes = combined_bytes[:4]
+    octets = struct.unpack('!BBBB', ip_bytes)
+    ipv4 = '.'.join(map(str, octets))
+    port_bytes = combined_bytes[4:]
+    port = struct.unpack('!H', port_bytes)[0]
+    return ipv4, port
 
 class Tetris(QMainWindow):
     """
@@ -213,9 +231,7 @@ class Lobby(QWidget):
         )
         self.server_thread.start()
         host_ip = self.get_external_ip()
-        self.join_code = base64.b64encode(
-            f"{host_ip}:{self.server_port}".encode()
-        ).decode()
+        self.join_code = ipv4_port_to_base64(host_ip, self.server_port)
         print(f"Join code: {self.join_code}")
 
     def is_admin(self):
@@ -239,7 +255,7 @@ class Lobby(QWidget):
     def get_external_ip(self):
         # This method retrieves the external IP address of the server
         try:
-            response = requests.get("https://api.ipify.org?format=text")
+            response = requests.get("https://api.ipify.org?format=text", timeout=10)
             if response.status_code == 200:
                 return response.text
             else:
@@ -261,7 +277,7 @@ class Lobby(QWidget):
                         f"name={rule_name}",
                         "dir=in",
                         "action=allow",
-                        f"protocol=TCP",
+                        "protocol=TCP",
                         f"localport={port}",
                     ]
                 )
@@ -270,8 +286,7 @@ class Lobby(QWidget):
                 print(f"Failed to add firewall rule: {e}")
 
     def setup_client(self):
-        decoded = base64.b64decode(self.join_code.encode()).decode()
-        host, port = decoded.split(":")
+        host, port = base64_to_ipv4_port(self.join_code)
         print(f"Connecting to server at {host}:{port}")
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -532,7 +547,7 @@ class Board(QFrame):
                         f"name={rule_name}",
                         "dir=in",
                         "action=allow",
-                        f"protocol=TCP",
+                        "protocol=TCP",
                         f"localport={port}",
                     ]
                 )
