@@ -232,7 +232,9 @@ class Lobby(QWidget):
         self.server_thread.start()
         host_ip = self.get_external_ip()
         self.join_code = ipv4_port_to_base64(host_ip, self.server_port)
+        loopback_code = ipv4_port_to_base64("127.0.0.1", self.server_port)
         print(f"Join code: {self.join_code}")
+        print(f"Loopback code: {loopback_code}")
 
     def is_admin(self):
         try:
