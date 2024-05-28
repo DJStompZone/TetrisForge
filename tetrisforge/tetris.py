@@ -486,9 +486,7 @@ class Board(QFrame):
                 )
                 self.server_thread.start()
                 host_ip = self.get_external_ip()
-                join_code = base64.b64encode(
-                    f"{host_ip}:{self.server_port}".encode()
-                ).decode()
+                join_code = ipv4_port_to_base64(host_ip, self.server_port)
                 print(f"Join code: {join_code}")
             else:
                 self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
